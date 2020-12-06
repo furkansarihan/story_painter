@@ -13,6 +13,7 @@ dependencies:
   
   story_painter:
     path: ../
+  fast_color_picker: 0.0.1
 cupertino_icons: ^0.1.3
 
 dev_dependencies:

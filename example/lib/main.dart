@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:fast_color_picker/fast_color_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:story_painter/story_painter.dart';
@@ -21,7 +22,10 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: Home());
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Home(),
+    );
   }
 }
 
@@ -48,6 +52,12 @@ class _HomeState extends State<Home> {
         title: const Text('story_painter'),
         actions: [
           IconButton(
+            icon: Icon(Icons.undo),
+            onPressed: () async {
+              painterControl.undo();
+            },
+          ),
+          IconButton(
             icon: Icon(Icons.save),
             onPressed: () async {
               ui.Image image = await painterControl.toImage(pixelRatio: 3.0);
@@ -65,8 +75,34 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      body: StoryPainter(
-        control: painterControl,
+      body: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          StoryPainter(
+            control: painterControl,
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Slider(
+                value: painterControl.width,
+                onChanged: (width) {
+                  painterControl.setWidth(width);
+                  setState(() {});
+                },
+                max: 30,
+                min: 5,
+              ),
+              FastColorPicker(
+                selectedColor: painterControl.color,
+                onColorSelected: (color) {
+                  painterControl.setColor(color);
+                  setState(() {});
+                },
+              ),
+            ],
+          )
+        ],
       ),
     );
   }

@@ -3,6 +3,10 @@ This package provides drawing experince like in story editor of Instagram.
 
 **story_painter** is a modified version of the [hand_signature](https://pub.dev/packages/hand_signature).
 
+<img src="https://firebasestorage.googleapis.com/v0/b/app-monotony.appspot.com/o/assets%2Fdemo.gif?alt=media&token=2e525617-acb6-40f0-bd68-f3e72c0e97c6"/>
+
+### Check out **fast_color_picker** from [here](https://pub.dev/packages/fast_color_picker). 
+
 ## Usage
 
 Initialize the controller
