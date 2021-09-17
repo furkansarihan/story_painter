@@ -9,7 +9,7 @@ import 'utils.dart';
 class StoryPainter extends StatelessWidget {
   final StoryPainterControl control;
 
-  StoryPainter({Key key, @required this.control}) : super(key: key);
+  StoryPainter({Key? key, required this.control}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -40,15 +40,15 @@ class StoryPainter extends StatelessWidget {
 }
 
 class StoryPainterView extends StatelessWidget {
-  final Drawable data;
-  final Color color;
-  final double Function(double width) strokeWidth;
-  final EdgeInsets padding;
-  final Widget placeholder;
+  final Drawable? data;
+  final Color? color;
+  final double Function(double? width)? strokeWidth;
+  final EdgeInsets? padding;
+  final Widget? placeholder;
 
   const StoryPainterView({
-    Key key,
-    @required this.data,
+    Key? key,
+    required this.data,
     this.color,
     this.strokeWidth,
     this.padding,
@@ -56,12 +56,12 @@ class StoryPainterView extends StatelessWidget {
   }) : super(key: key);
 
   static _StoryPainterViewSvg svg({
-    Key key,
-    @required String data,
-    Color color,
-    double Function(double width) strokeWidth,
-    EdgeInsets padding,
-    Widget placeholder,
+    Key? key,
+    required String data,
+    Color? color,
+    double Function(double? width)? strokeWidth,
+    EdgeInsets? padding,
+    Widget? placeholder,
   }) =>
       _StoryPainterViewSvg(
         key: key,
@@ -84,10 +84,10 @@ class StoryPainterView extends StatelessWidget {
         fit: BoxFit.contain,
         alignment: Alignment.center,
         child: SizedBox.fromSize(
-          size: PathUtil.getDrawableSize(data),
+          size: PathUtil.getDrawableSize(data as DrawableRoot),
           child: CustomPaint(
             painter: DrawableSignaturePainter(
-              drawable: data,
+              drawable: data as DrawableParent,
               color: color,
               strokeWidth: strokeWidth,
             ),
@@ -100,14 +100,14 @@ class StoryPainterView extends StatelessWidget {
 
 class _StoryPainterViewSvg extends StatefulWidget {
   final String data;
-  final Color color;
-  final double Function(double width) strokeWidth;
-  final EdgeInsets padding;
-  final Widget placeholder;
+  final Color? color;
+  final double Function(double? width)? strokeWidth;
+  final EdgeInsets? padding;
+  final Widget? placeholder;
 
   const _StoryPainterViewSvg({
-    Key key,
-    @required this.data,
+    Key? key,
+    required this.data,
     this.color,
     this.strokeWidth,
     this.padding,
@@ -119,7 +119,7 @@ class _StoryPainterViewSvg extends StatefulWidget {
 }
 
 class _StoryPainterViewSvgState extends State<_StoryPainterViewSvg> {
-  DrawableParent drawable;
+  DrawableParent? drawable;
 
   @override
   void initState() {
@@ -165,7 +165,7 @@ class _StoryPainterViewSvgState extends State<_StoryPainterViewSvg> {
 }
 
 class _SinglePanGestureRecognizer extends PanGestureRecognizer {
-  _SinglePanGestureRecognizer({Object debugOwner})
+  _SinglePanGestureRecognizer({Object? debugOwner})
       : super(debugOwner: debugOwner);
 
   bool isDown = false;
@@ -177,7 +177,7 @@ class _SinglePanGestureRecognizer extends PanGestureRecognizer {
     }
 
     isDown = true;
-    super.addAllowedPointer(event);
+    super.addAllowedPointer(event as PointerDownEvent);
   }
 
   @override

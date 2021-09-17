@@ -8,14 +8,14 @@ import 'package:flutter/rendering.dart';
 import '../story_painter.dart';
 import 'utils.dart';
 
-Map<double, double> maxWCache = {};
+Map<double, double?> maxWCache = {};
 
 class OffsetPoint extends Offset {
-  final int timestamp;
+  final int? timestamp;
 
   const OffsetPoint({
-    double dx,
-    double dy,
+    required double dx,
+    required double dy,
     this.timestamp,
   }) : super(dx, dy);
 
@@ -26,7 +26,7 @@ class OffsetPoint extends Offset {
       );
 
   double velocityFrom(OffsetPoint other) => timestamp != other.timestamp
-      ? this.distanceTo(other) / (timestamp - other.timestamp)
+      ? this.distanceTo(other) / (timestamp! - other.timestamp!)
       : 0.0;
 
   @override
@@ -65,16 +65,16 @@ class CubicLine extends Offset {
   final Offset cpEnd;
   final OffsetPoint end;
 
-  double _velocity;
-  double _distance;
+  double? _velocity;
+  double? _distance;
 
-  Offset _upStartVector;
+  Offset? _upStartVector;
 
   Offset get upStartVector =>
       _upStartVector ??
       (_upStartVector = start.directionTo(point(0.001)).rotate(-math.pi * 0.5));
 
-  Offset _upEndVector;
+  Offset? _upEndVector;
 
   Offset get upEndVector =>
       _upEndVector ??
@@ -90,12 +90,12 @@ class CubicLine extends Offset {
   bool get isDot => _velocity == 0.0;
 
   CubicLine({
-    @required this.start,
-    @required this.cpStart,
-    @required this.cpEnd,
-    @required this.end,
-    Offset upStartVector,
-    Offset upEndVector,
+    required this.start,
+    required this.cpStart,
+    required this.cpEnd,
+    required this.end,
+    Offset? upStartVector,
+    Offset? upEndVector,
     this.startSize: 0.0,
     this.endSize: 0.0,
   }) : super(start.dx, start.dy) {
@@ -131,7 +131,7 @@ class CubicLine extends Offset {
 
   /// 0 - fastest, raw accuracy
   /// 1 - slowest, most accurate
-  double length({double accuracy: 0.1}) {
+  double? length({double accuracy: 0.1}) {
     final steps = (accuracy * 100).toInt();
 
     if (steps <= 1) {
@@ -162,15 +162,15 @@ class CubicLine extends Offset {
   }
 
   double velocity({double accuracy: 0.0}) => start.timestamp != end.timestamp
-      ? length(accuracy: accuracy) / (end.timestamp - start.timestamp)
+      ? length(accuracy: accuracy)! / (end.timestamp! - start.timestamp!)
       : 0.0;
 
   double combineVelocity(double inVelocity,
       {double velocityRatio: 0.65, double maxFallOff: 1.0}) {
     final value =
-        (_velocity * velocityRatio) + (inVelocity * (1.0 - velocityRatio));
+        (_velocity! * velocityRatio) + (inVelocity * (1.0 - velocityRatio));
 
-    maxFallOff *= _distance / 10.0;
+    maxFallOff *= _distance! / 10.0;
 
     final dif = value - inVelocity;
     if (dif.abs() > maxFallOff) {
@@ -189,9 +189,9 @@ class CubicLine extends Offset {
     ..cubicTo(cpStart.dx, cpStart.dy, cpEnd.dx, cpEnd.dy, end.dx, end.dy);
 
   List<CubicArc> toArc(double size, double deltaSize, {double precision: 0.5}) {
-    final list = List<CubicArc>();
+    final List<CubicArc> list = <CubicArc>[];
 
-    final steps = (_distance * precision).floor().clamp(1, 30);
+    final num steps = (_distance! * precision).floor().clamp(1, 30);
 
     Offset start = this.start;
     for (int i = 0; i < steps; i++) {
@@ -253,8 +253,8 @@ class CubicLine extends Offset {
       (size + (maxSize - size) * t) * 0.5;
 
   static Offset softCP(OffsetPoint current,
-      {OffsetPoint previous,
-      OffsetPoint next,
+      {OffsetPoint? previous,
+      OffsetPoint? next,
       bool reverse: false,
       double smoothing: 0.65}) {
     assert(smoothing >= 0.0 && smoothing <= 1.0);
@@ -272,13 +272,13 @@ class CubicLine extends Offset {
     final dir3 =
         reverse ? next.directionTo(previous) : previous.directionTo(next);
 
-    final velocity =
-        (dist * 0.3 / (next.timestamp - previous.timestamp)).clamp(0.5, 3.0);
-    final ratio = (dist * velocity * smoothing)
+    final num velocity =
+        (dist * 0.3 / (next.timestamp! - previous.timestamp!)).clamp(0.5, 3.0);
+    final num ratio = (dist * velocity * smoothing)
         .clamp(0.0, (reverse ? dist2 : dist1) * 0.5);
 
-    final dir =
-        ((reverse ? dir2 : dir1) * sharpness) + (dir3 * smoothing) * ratio;
+    final dir = ((reverse ? dir2 : dir1) * sharpness) +
+        (dir3 * smoothing) * (ratio as double);
     final x = current.dx + dir.dx;
     final y = current.dy + dir.dy;
 
@@ -299,8 +299,8 @@ class CubicArc extends Offset {
   Rect get rect => Rect.fromPoints(this, location);
 
   CubicArc({
-    @required Offset start,
-    @required this.location,
+    required Offset start,
+    required this.location,
     this.size: 1.0,
   }) : super(start.dx, start.dy);
 
@@ -320,11 +320,11 @@ class CubicArc extends Offset {
 }
 
 class CubicPath {
-  SinglePathState pathState;
+  SinglePathState? pathState;
   final int id;
-  final _points = List<OffsetPoint>();
-  final _lines = List<CubicLine>();
-  final _arcs = List<CubicArc>();
+  final _points = <OffsetPoint>[];
+  final _lines = <CubicLine>[];
+  final _arcs = <CubicArc>[];
 
   List<OffsetPoint> get points => _points;
 
@@ -332,20 +332,20 @@ class CubicPath {
 
   List<CubicArc> get arcs => _arcs;
 
-  Offset get _origin => _points.isNotEmpty ? _points[0] : null;
+  Offset? get _origin => _points.isNotEmpty ? _points[0] : null;
 
-  OffsetPoint get _lastPoint =>
+  OffsetPoint? get _lastPoint =>
       _points.isNotEmpty ? _points[_points.length - 1] : null;
 
   bool get isFilled => _lines.isNotEmpty;
 
-  Path _temp;
+  Path? _temp;
 
-  Path get tempPath => _temp;
+  Path? get tempPath => _temp;
 
   double maxVelocity = 1.0;
 
-  double _currentVelocity = 0.0;
+  double? _currentVelocity = 0.0;
   double _currentSize = 0.0;
 
   final threshold;
@@ -372,7 +372,7 @@ class CubicPath {
       }
 
       if (_currentSize == 0.0) {
-        _currentSize = _lineSize(_currentVelocity, maxVelocity);
+        _currentSize = _lineSize(_currentVelocity!, maxVelocity);
       }
     } else {
       line._upStartVector = _lines.last.upEndVector;
@@ -381,7 +381,7 @@ class CubicPath {
     _lines.add(line);
 
     final combinedVelocity =
-        line.combineVelocity(_currentVelocity, maxFallOff: 0.125);
+        line.combineVelocity(_currentVelocity!, maxFallOff: 0.125);
     final double endSize = _lineSize(combinedVelocity, maxVelocity);
 
     if (combinedVelocity > maxVelocity) {
@@ -398,7 +398,7 @@ class CubicPath {
   }
 
   void _addDot(CubicLine line) {
-    final size = 0.25 + _lineSize(_currentVelocity, maxVelocity) * 0.5;
+    final size = 0.25 + _lineSize(_currentVelocity!, maxVelocity) * 0.5;
     line.startSize = size;
 
     _lines.add(line);
@@ -411,7 +411,7 @@ class CubicPath {
     return 1.0 - velocity.clamp(0.0, 1.0);
   }
 
-  void begin(Offset point, {double velocity: 0.0}) {
+  void begin(Offset point, {double? velocity: 0.0}) {
     _points.add(OffsetPoint.from(point));
     _currentVelocity = velocity;
 
@@ -423,7 +423,7 @@ class CubicPath {
 
     final nextPoint = point is OffsetPoint ? point : OffsetPoint.from(point);
 
-    if (_lastPoint.distanceTo(nextPoint) < threshold) {
+    if (_lastPoint!.distanceTo(nextPoint) < threshold) {
       _temp = _line(_points.last, nextPoint);
 
       return;
@@ -474,7 +474,7 @@ class CubicPath {
     _temp = _line(end, next);
   }
 
-  bool end({Offset point}) {
+  bool end({Offset? point}) {
     if (point != null) {
       add(point);
     }
@@ -528,16 +528,17 @@ class CubicPath {
       point.dy,
     );
 
-  Path _line(Offset start, Offset end, [Offset startCp, Offset endCp]) => Path()
-    ..moveTo(start.dx, start.dy)
-    ..cubicTo(
-      startCp != null ? startCp.dx : (start.dx + end.dx) * 0.5,
-      startCp != null ? startCp.dy : (start.dy + end.dy) * 0.5,
-      endCp != null ? endCp.dx : (start.dx + end.dx) * 0.5,
-      endCp != null ? endCp.dy : (start.dy + end.dy) * 0.5,
-      end.dx,
-      end.dy,
-    );
+  Path _line(Offset start, Offset end, [Offset? startCp, Offset? endCp]) =>
+      Path()
+        ..moveTo(start.dx, start.dy)
+        ..cubicTo(
+          startCp != null ? startCp.dx : (start.dx + end.dx) * 0.5,
+          startCp != null ? startCp.dy : (start.dy + end.dy) * 0.5,
+          endCp != null ? endCp.dx : (start.dx + end.dx) * 0.5,
+          endCp != null ? endCp.dy : (start.dy + end.dy) * 0.5,
+          end.dx,
+          end.dy,
+        );
 
   void setScale(double ratio) {
     if (!isFilled) {
@@ -561,9 +562,9 @@ class CubicPath {
 }
 
 class StoryPainterControl {
-  StoryPainterPaintState pageState;
+  late StoryPainterPaintState pageState;
   GlobalKey painterKey = GlobalKey();
-  final _paths = List<CubicPath>();
+  final _paths = <CubicPath?>[];
 
   void undo() {
     if (_paths.isNotEmpty) {
@@ -576,41 +577,41 @@ class StoryPainterControl {
 
   void setWidth(double newWidth) => width = newWidth;
 
-  List<CubicPath> get paths => _paths;
+  List<CubicPath?> get paths => _paths;
 
   List<List<Offset>> get _offsets {
-    final list = List<List<Offset>>();
+    final list = <List<Offset>>[];
 
-    _paths.forEach((data) => list.add(data._points));
+    _paths.forEach((data) => list.add(data!._points));
 
     return list;
   }
 
   List<List<CubicLine>> get _cubicLines {
-    final list = List<List<CubicLine>>();
+    final list = <List<CubicLine>>[];
 
-    _paths.forEach((data) => list.add(data._lines));
+    _paths.forEach((data) => list.add(data!._lines));
 
     return list;
   }
 
   List<CubicArc> get _arcs {
-    final list = List<CubicArc>();
+    final list = <CubicArc>[];
 
-    _paths.forEach((data) => list.addAll(data.arcs));
+    _paths.forEach((data) => list.addAll(data!.arcs));
 
     return list;
   }
 
   List<CubicLine> get lines {
-    final list = List<CubicLine>();
+    final list = <CubicLine>[];
 
-    _paths.forEach((data) => list.addAll(data.lines));
+    _paths.forEach((data) => list.addAll(data!.lines));
 
     return list;
   }
 
-  CubicPath _activePath;
+  CubicPath? _activePath;
 
   bool get hasActivePath => _activePath != null;
 
@@ -620,8 +621,8 @@ class StoryPainterControl {
 
   Size _areaSize = Size.zero;
 
-  final Function onDrawStart;
-  final Function onDrawEnd;
+  final Function? onDrawStart;
+  final Function? onDrawEnd;
   final double threshold;
   final double smoothRatio;
   final double velocityRange;
@@ -656,8 +657,8 @@ class StoryPainterControl {
       type: type,
     )..maxVelocity = velocityRange;
 
-    _activePath.begin(point,
-        velocity: _paths.isNotEmpty ? _paths.last._currentVelocity : 0.0);
+    _activePath!.begin(point,
+        velocity: _paths.isNotEmpty ? _paths.last!._currentVelocity : 0.0);
 
     _paths.add(_activePath);
     pageState.add();
@@ -666,20 +667,20 @@ class StoryPainterControl {
   void alterPath(Offset point) {
     assert(hasActivePath);
 
-    _activePath.add(point);
+    _activePath!.add(point);
     pageState.update();
   }
 
-  void closePath({Offset point}) {
+  void closePath({Offset? point}) {
     assert(hasActivePath);
     onDrawEnd?.call();
 
-    if (!_activePath.end(point: point)) {
+    if (!_activePath!.end(point: point)) {
       _paths.removeLast();
     }
 
-    if (_activePath.isDot) {
-      _activePath.pathState?.refreshState();
+    if (_activePath!.isDot) {
+      _activePath!.pathState?.refreshState();
     }
 
     _activePath = null;
@@ -719,7 +720,7 @@ class StoryPainterControl {
     _areaSize = size;
 
     _paths.forEach((path) {
-      path.setScale(scale);
+      path!.setScale(scale);
     });
 
     //TODO: Notify is called during rebuild, so notify must be postponed one frame - will be solved by widget/state
@@ -731,7 +732,7 @@ class StoryPainterControl {
     double pixelRatio = 2.0,
   }) async {
     RenderRepaintBoundary boundary =
-        painterKey.currentContext.findRenderObject();
+        painterKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
     ui.Image image = await boundary.toImage(pixelRatio: pixelRatio);
     return image;
   }

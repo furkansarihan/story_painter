@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import '../story_painter.dart';
 
 class StoryPainterPaint extends StatefulWidget {
-  final StoryPainterControl control;
-  final bool Function(Size size) onSize;
+  final StoryPainterControl? control;
+  final bool Function(Size size)? onSize;
 
   const StoryPainterPaint({
-    Key key,
+    Key? key,
     this.control,
     this.onSize,
   }) : super(key: key);
@@ -17,34 +17,34 @@ class StoryPainterPaint extends StatefulWidget {
 }
 
 class StoryPainterPaintState extends State<StoryPainterPaint> {
-  List<SinglePath> pathWidgets = List<SinglePath>();
+  List<SinglePath> pathWidgets = <SinglePath>[];
   @override
   void initState() {
     super.initState();
-    widget.control.paths.forEach((_path) {
+    widget.control!.paths.forEach((_path) {
       pathWidgets.add(SinglePath(
         path: _path,
         onSize: widget.onSize,
-        type: _path.type,
+        type: _path!.type,
       ));
     });
-    widget.control.pageState = this;
+    widget.control!.pageState = this;
   }
 
   void add() {
     pathWidgets.add(
       SinglePath(
-        key: ObjectKey(widget.control.paths.last.id),
-        path: widget.control.paths.last,
+        key: ObjectKey(widget.control!.paths.last!.id),
+        path: widget.control!.paths.last,
         onSize: widget.onSize,
-        type: widget.control.type,
+        type: widget.control!.type,
       ),
     );
     refreshState();
   }
 
   void update() {
-    pathWidgets.last?.path?.pathState?.refreshState();
+    pathWidgets.last.path?.pathState?.refreshState();
   }
 
   void remove() {
@@ -67,11 +67,11 @@ class StoryPainterPaintState extends State<StoryPainterPaint> {
 }
 
 class SinglePath extends StatefulWidget {
-  final CubicPath path;
-  final PainterDrawType type;
-  final bool Function(Size size) onSize;
+  final CubicPath? path;
+  final PainterDrawType? type;
+  final bool Function(Size size)? onSize;
 
-  const SinglePath({Key key, this.type, this.onSize, this.path})
+  const SinglePath({Key? key, this.type, this.onSize, this.path})
       : super(key: key);
 
   @override
@@ -82,7 +82,7 @@ class SinglePathState extends State<SinglePath> {
   @override
   void initState() {
     super.initState();
-    widget.path.pathState = this;
+    widget.path!.pathState = this;
   }
 
   @override
@@ -92,7 +92,7 @@ class SinglePathState extends State<SinglePath> {
         isComplex: true,
         willChange: false,
         painter: PathSignaturePainter(
-          path: widget.path,
+          path: widget.path!,
           onSize: widget.onSize,
         ),
       ),

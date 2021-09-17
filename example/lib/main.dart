@@ -61,9 +61,12 @@ class _HomeState extends State<Home> {
             icon: Icon(Icons.save),
             onPressed: () async {
               ui.Image image = await painterControl.toImage(pixelRatio: 3.0);
-              ByteData byteData =
+              ByteData? byteData =
                   await image.toByteData(format: ui.ImageByteFormat.png);
-              var pngBytes = byteData.buffer.asUint8List();
+              var pngBytes = byteData?.buffer.asUint8List();
+              if (pngBytes == null) {
+                return;
+              }
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => OnlyImage(
@@ -111,7 +114,7 @@ class _HomeState extends State<Home> {
 class OnlyImage extends StatelessWidget {
   final Uint8List imageData;
 
-  const OnlyImage({Key key, this.imageData}) : super(key: key);
+  const OnlyImage({Key? key, required this.imageData}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
