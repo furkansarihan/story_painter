@@ -1,6 +1,6 @@
 name: story_painter
 description: This package provides drawing experince like in story editor of Instagram.
-version: 0.0.3
+version: 0.0.4
 homepage: https://github.com/furkansarihan/story_painter
 
 environment:
@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_svg: ^0.22.0
+  flutter_svg: ^1.1.6
 
 dev_dependencies:
   flutter_test:
