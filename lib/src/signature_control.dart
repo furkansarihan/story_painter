@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -56,7 +55,7 @@ class OffsetPoint extends Offset {
   }
 
   @override
-  int get hashCode => hashValues(super.hashCode, timestamp);
+  int get hashCode => Object.hash(super.hashCode, timestamp);
 }
 
 class CubicLine extends Offset {
@@ -96,8 +95,8 @@ class CubicLine extends Offset {
     required this.end,
     Offset? upStartVector,
     Offset? upEndVector,
-    this.startSize: 0.0,
-    this.endSize: 0.0,
+    this.startSize = 0.0,
+    this.endSize = 0.0,
   }) : super(start.dx, start.dy) {
     _upStartVector = upStartVector;
     _upEndVector = upEndVector;
@@ -131,7 +130,7 @@ class CubicLine extends Offset {
 
   /// 0 - fastest, raw accuracy
   /// 1 - slowest, most accurate
-  double? length({double accuracy: 0.1}) {
+  double? length({double accuracy = 0.1}) {
     final steps = (accuracy * 100).toInt();
 
     if (steps <= 1) {
@@ -161,12 +160,12 @@ class CubicLine extends Offset {
         (end * t * t * t);
   }
 
-  double velocity({double accuracy: 0.0}) => start.timestamp != end.timestamp
+  double velocity({double accuracy = 0.0}) => start.timestamp != end.timestamp
       ? length(accuracy: accuracy)! / (end.timestamp! - start.timestamp!)
       : 0.0;
 
   double combineVelocity(double inVelocity,
-      {double velocityRatio: 0.65, double maxFallOff: 1.0}) {
+      {double velocityRatio = 0.65, double maxFallOff = 1.0}) {
     final value =
         (_velocity! * velocityRatio) + (inVelocity * (1.0 - velocityRatio));
 
@@ -188,7 +187,8 @@ class CubicLine extends Offset {
     ..moveTo(dx, dy)
     ..cubicTo(cpStart.dx, cpStart.dy, cpEnd.dx, cpEnd.dy, end.dx, end.dy);
 
-  List<CubicArc> toArc(double size, double deltaSize, {double precision: 0.5}) {
+  List<CubicArc> toArc(double size, double deltaSize,
+      {double precision = 0.5}) {
     final List<CubicArc> list = <CubicArc>[];
 
     final num steps = (_distance! * precision).floor().clamp(1, 30);
@@ -255,8 +255,8 @@ class CubicLine extends Offset {
   static Offset softCP(OffsetPoint current,
       {OffsetPoint? previous,
       OffsetPoint? next,
-      bool reverse: false,
-      double smoothing: 0.65}) {
+      bool reverse = false,
+      double smoothing = 0.65}) {
     assert(smoothing >= 0.0 && smoothing <= 1.0);
 
     previous ??= current;
@@ -301,7 +301,7 @@ class CubicArc extends Offset {
   CubicArc({
     required Offset start,
     required this.location,
-    this.size: 1.0,
+    this.size = 1.0,
   }) : super(start.dx, start.dy);
 
   @override
@@ -359,10 +359,10 @@ class CubicPath {
   CubicPath(
     this.id,
     this.width, {
-    this.threshold: 3.0,
-    this.smoothRatio: 0.65,
-    this.color: Colors.black,
-    this.type: PainterDrawType.shape,
+    this.threshold = 3.0,
+    this.smoothRatio = 0.65,
+    this.color = Colors.black,
+    this.type = PainterDrawType.shape,
   });
 
   void _addLine(CubicLine line) {
@@ -411,7 +411,7 @@ class CubicPath {
     return 1.0 - velocity.clamp(0.0, 1.0);
   }
 
-  void begin(Offset point, {double? velocity: 0.0}) {
+  void begin(Offset point, {double? velocity = 0.0}) {
     _points.add(OffsetPoint.from(point));
     _currentVelocity = velocity;
 
@@ -631,11 +631,11 @@ class StoryPainterControl {
   double width;
 
   StoryPainterControl({
-    this.threshold: 3.0,
-    this.smoothRatio: 0.65,
-    this.velocityRange: 2.0,
+    this.threshold = 3.0,
+    this.smoothRatio = 0.65,
+    this.velocityRange = 2.0,
     this.width = 1.0,
-    this.color: Colors.black,
+    this.color = Colors.black,
     this.onDrawStart,
     this.onDrawEnd,
     this.type = PainterDrawType.shape,

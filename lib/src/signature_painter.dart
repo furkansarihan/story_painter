@@ -197,11 +197,11 @@ class DebugSignaturePainterCP extends CustomPainter {
 
   DebugSignaturePainterCP({
     required this.control,
-    this.cp: false,
-    this.cpStart: true,
-    this.cpEnd: true,
-    this.dot: true,
-    this.color: Colors.red,
+    this.cp = false,
+    this.cpStart = true,
+    this.cpEnd = true,
+    this.dot = true,
+    this.color = Colors.red,
   });
 
   @override
